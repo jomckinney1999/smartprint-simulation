@@ -1,5 +1,7 @@
 import streamlit as st
 import matplotlib.pyplot as plt
+import numpy as np
+from io import BytesIO
 
 def run_simulation(
     printer_count, 
@@ -43,17 +45,18 @@ def run_simulation(
         "Net Savings": f"${savings:,.2f}",
         "ROI (%)": f"{roi:.2%}",
         "ROI (numeric)": roi,
-        "Net Savings (numeric)": savings
+        "Net Savings (numeric)": savings,
+        "Labor Savings (numeric)": labor_cost_lost - new_labor_cost,
+        "Material Savings (numeric)": material_cost_lost - new_material_cost
     }
 
-# Streamlit layout
+# --- Streamlit UI ---
 st.set_page_config(page_title="SmartPrint Simulation Model", layout="centered")
 st.title("📊 3D Printing Simulation Efficiency Model")
-st.caption("Explore how simulation tools can reduce failures, save costs, and improve ROI in real-world 3D printing workflows.")
 
-# --- Preset Use Cases ---
+# --- Preset Scenarios ---
 st.sidebar.markdown("### 🧭 Use Case Presets")
-preset = st.sidebar.selectbox("Choose a realistic use case to explore:", [
+preset = st.sidebar.selectbox("Choose a use case:", [
     "Customize your own inputs", 
     "University Lab (Standard Usage)", 
     "Manufacturing Facility (High Volume)", 
@@ -105,8 +108,8 @@ elif preset == "Startup R&D Team (Small-Scale Pilot)":
         "simulation_tool_cost": 300
     })
 
-# --- Simulation Sliders ---
-st.sidebar.header("🎛️ Fine-tune Parameters")
+# --- Input Sliders ---
+st.sidebar.header("🎛️ Adjust Parameters")
 printer_count = st.sidebar.slider("Number of Printers", 1, 50, defaults["printer_count"])
 jobs_per_printer_per_week = st.sidebar.slider("Jobs per Printer per Week", 1, 100, defaults["jobs_per_printer_per_week"])
 failure_rate = st.sidebar.slider("Failure Rate (%)", 0.0, 1.0, defaults["failure_rate"])
@@ -116,7 +119,7 @@ material_waste_cost = st.sidebar.slider("Material Cost per Failure ($)", 1, 100,
 simulation_effectiveness = st.sidebar.slider("Simulation Effectiveness (%)", 0.0, 1.0, defaults["simulation_effectiveness"])
 simulation_tool_cost = st.sidebar.slider("Monthly Simulation Tool Cost ($)", 0, 10000, defaults["simulation_tool_cost"])
 
-# --- Run Simulation ---
+# --- Simulation ---
 results = run_simulation(
     printer_count,
     jobs_per_printer_per_week,
@@ -128,83 +131,65 @@ results = run_simulation(
     simulation_tool_cost
 )
 
-# --- Display Results ---
-st.markdown("## 📈 Simulation Results Summary")
-st.markdown("---")
+# --- Results Display ---
+st.markdown("## 📈 Simulation Summary")
+st.markdown("### 🔧 Key Metrics")
+st.write(f"🖨️ Total Print Jobs/Month: `{results['Total Print Jobs/Month']}`")
+st.write(f"📉 Failure Rate (Before): `{results['Failure Rate (Before)']}` → 📈 After: `{results['Failure Rate (After)']}`")
+st.write(f"⏱️ Labor Hours Lost: `{results['Labor Hours Lost (Before)']}` → `{results['Labor Hours Lost (After)']}`")
+st.write(f"🧱 Material Cost Lost: `{results['Material Cost Lost (Before)']}` → `{results['Material Cost Lost (After)']}`")
+st.write(f"💰 Monthly Cost: `{results['Total Monthly Cost (Before)']}` → `{results['Total Monthly Cost (After)']}`")
+st.write(f"🧠 Simulation Tool Cost: `{results['Simulation Tool Cost']}`")
 
-st.markdown("### 🔧 Operational Metrics")
-st.markdown(f"🖨️ **Total Print Jobs/Month:** `{results['Total Print Jobs/Month']}`")
-st.markdown(f"📉 **Failure Rate (Before):** `{results['Failure Rate (Before)']}`")
-st.markdown(f"📈 **Failure Rate (After):** `{results['Failure Rate (After)']}`")
-
-st.markdown("### ⏱️ Time Lost to Failures")
-st.markdown(f"⛔ **Labor Hours Lost (Before):** `{results['Labor Hours Lost (Before)']}`")
-st.markdown(f"✅ **Labor Hours Lost (After):** `{results['Labor Hours Lost (After)']}`")
-
-st.markdown("### 💸 Cost Breakdown")
-st.markdown(f"🧱 **Material Cost Lost (Before):** `{results['Material Cost Lost (Before)']}`")
-st.markdown(f"🪙 **Material Cost Lost (After):** `{results['Material Cost Lost (After)']}`")
-st.markdown(f"💰 **Total Monthly Cost (Before):** `{results['Total Monthly Cost (Before)']}`")
-st.markdown(f"💵 **Total Monthly Cost (After):** `{results['Total Monthly Cost (After)']}`")
-
-st.markdown("### 📊 ROI & Savings")
-st.markdown(f"🧠 **Simulation Tool Cost:** `{results['Simulation Tool Cost']}`")
+# --- ROI Emphasis ---
+if results["ROI (numeric)"] > 5:
+    st.markdown(f"🚀 **ROI:** <span style='color:gold;font-weight:bold;font-size:20px'>{results['ROI (%)']}</span>", unsafe_allow_html=True)
+else:
+    st.write(f"ROI: {results['ROI (%)']}")
 
 if results["Net Savings (numeric)"] > 100000:
     st.markdown(f"🟢 **Net Savings:** <span style='color:limegreen;font-weight:bold;font-size:20px'>{results['Net Savings']}</span>", unsafe_allow_html=True)
 else:
-    st.markdown(f"**Net Savings:** {results['Net Savings']}")
-
-if results["ROI (numeric)"] > 5:
-    st.markdown(f"🚀 **ROI:** <span style='color:gold;font-weight:bold;font-size:20px'>{results['ROI (%)']}</span>", unsafe_allow_html=True)
-else:
-    st.markdown(f"**ROI:** {results['ROI (%)']}")
-
-# --- Description ---
-st.markdown("---")
-st.markdown("## 🧠 What This Model Does")
-st.markdown("""
-This simulation estimates the time, cost, and resource impact of failed 3D print jobs in real-world workflows.  
-It models how simulation tools like SmartPrint can reduce these inefficiencies — giving you real-time insights on ROI, labor savings, and material waste reduction.
-""")
+    st.write(f"Net Savings: {results['Net Savings']}")
 
 # --- Takeaway ---
-st.markdown("## 🔍 Key Takeaway")
+st.markdown("## 🔍 Takeaway")
 roi_numeric = results["ROI (numeric)"]
 if roi_numeric > 5:
     st.success("✅ Simulation tools offer massive cost and time savings — a strong business case for adoption.")
 elif roi_numeric > 1:
-    st.info("📈 This shows a promising return on investment. Worth piloting or scaling.")
+    st.info("📈 Good potential ROI. Worth piloting or scaling.")
 elif roi_numeric > 0:
-    st.warning("⚠️ Limited efficiency gains. Consider adjusting parameters or simulation scope.")
+    st.warning("⚠️ ROI is low. Try optimizing effectiveness or inputs.")
 else:
-    st.error("❌ This configuration doesn’t show value. Try a different scenario or input.")
+    st.error("❌ No return on investment in this scenario.")
 
-# --- Bar Chart: Labor & Material Cost Before/After ---
-before_labor = float(results["Labor Hours Lost (Before)"]) * hourly_labor_cost
-after_labor = float(results["Labor Hours Lost (After)"]) * hourly_labor_cost
-before_material = float(results["Material Cost Lost (Before)"].replace('$','').replace(',',''))
-after_material = float(results["Material Cost Lost (After)"].replace('$','').replace(',',''))
-
-labels = ['Labor Cost', 'Material Cost']
-before_costs = [before_labor, before_material]
-after_costs = [after_labor, after_material]
-x = range(len(labels))
-
-fig, ax = plt.subplots()
-ax.bar(x, before_costs, width=0.4, label='Before', align='center', color='tomato')
-ax.bar([i + 0.4 for i in x], after_costs, width=0.4, label='After', align='center', color='mediumseagreen')
-ax.set_xticks([i + 0.2 for i in x])
-ax.set_xticklabels(labels)
-ax.set_ylabel("Cost ($)")
-ax.set_title("📉 Monthly Cost Comparison: Before vs After Simulation")
-ax.legend()
-st.pyplot(fig)
-
-# --- Extra Visuals ---
-st.markdown("## 📊 Additional Visuals")
+# --- ROI Trend Line Chart (Dynamic) ---
+st.markdown("## 📊 Visual Insights")
 st.markdown("### ROI Growth vs. Simulation Effectiveness")
-st.image("roi_vs_effectiveness.png", use_column_width=True)
+eff_levels = np.linspace(0.1, 0.9, 5)
+roi_vals = [round((0.2 + eff * 2), 2) for eff in eff_levels]
+fig1, ax1 = plt.subplots()
+ax1.plot(eff_levels, roi_vals, marker='o', color='mediumblue')
+ax1.set_xlabel("Simulation Effectiveness")
+ax1.set_ylabel("Estimated ROI")
+ax1.set_title("ROI Growth vs. Simulation Effectiveness")
+ax1.grid(True)
+buf1 = BytesIO()
+fig1.savefig(buf1, format="png")
+buf1.seek(0)
+st.image(buf1)
 
+# --- Savings Pie Chart (Dynamic) ---
 st.markdown("### Savings Breakdown (Labor vs Material)")
-st.image("savings_pie_chart.png", use_column_width=True)
+fig2, ax2 = plt.subplots()
+savings_data = [results["Labor Savings (numeric)"], results["Material Savings (numeric)"]]
+labels = ['Labor Savings', 'Material Savings']
+colors = ['lightgreen', 'lightskyblue']
+ax2.pie(savings_data, labels=labels, autopct='%1.1f%%', colors=colors, startangle=140)
+ax2.axis('equal')
+ax2.set_title("Savings Distribution")
+buf2 = BytesIO()
+fig2.savefig(buf2, format="png")
+buf2.seek(0)
+st.image(buf2)
