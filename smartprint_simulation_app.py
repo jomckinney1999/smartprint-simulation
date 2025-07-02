@@ -46,23 +46,77 @@ def run_simulation(
         "Net Savings (numeric)": savings
     }
 
+# App layout
 st.set_page_config(page_title="SmartPrint Simulation Model", layout="centered")
-
 st.title("📊 3D Printing Simulation Efficiency Model")
-st.caption("Real-time simulation of the ROI potential from adopting quantum/AI-based simulation tools like SmartPrint.")
+st.caption("Explore how simulation tools can reduce failures, save costs, and improve ROI in real-world 3D printing workflows.")
 
-# Sidebar Inputs
-st.sidebar.header("🛠️ Simulation Parameters")
-printer_count = st.sidebar.slider("Number of Printers", 1, 50, 10)
-jobs_per_printer_per_week = st.sidebar.slider("Jobs per Printer per Week", 1, 100, 20)
-failure_rate = st.sidebar.slider("Failure Rate (%)", 0.0, 1.0, 0.15)
-time_lost_per_failure = st.sidebar.slider("Time Lost per Failure (hrs)", 0.0, 10.0, 2.0)
-hourly_labor_cost = st.sidebar.slider("Hourly Labor Cost ($)", 10, 200, 30)
-material_waste_cost = st.sidebar.slider("Material Cost per Failure ($)", 1, 100, 15)
-simulation_effectiveness = st.sidebar.slider("Simulation Effectiveness (%)", 0.0, 1.0, 0.5)
-simulation_tool_cost = st.sidebar.slider("Monthly Simulation Tool Cost ($)", 0, 10000, 1000)
+# Presets
+st.sidebar.markdown("### 🧭 Use Case Presets")
+preset = st.sidebar.selectbox("Choose a realistic use case to explore:", [
+    "Customize your own inputs", 
+    "University Lab (Standard Usage)", 
+    "Manufacturing Facility (High Volume)", 
+    "Startup R&D Team (Small-Scale Pilot)"
+])
 
-# Run model
+defaults = {
+    "printer_count": 10,
+    "jobs_per_printer_per_week": 20,
+    "failure_rate": 0.15,
+    "time_lost_per_failure": 2.0,
+    "hourly_labor_cost": 30,
+    "material_waste_cost": 15,
+    "simulation_effectiveness": 0.5,
+    "simulation_tool_cost": 1000
+}
+
+if preset == "University Lab (Standard Usage)":
+    defaults.update({
+        "printer_count": 5,
+        "jobs_per_printer_per_week": 25,
+        "failure_rate": 0.18,
+        "time_lost_per_failure": 1.5,
+        "hourly_labor_cost": 40,
+        "material_waste_cost": 12,
+        "simulation_effectiveness": 0.4,
+        "simulation_tool_cost": 500
+    })
+elif preset == "Manufacturing Facility (High Volume)":
+    defaults.update({
+        "printer_count": 25,
+        "jobs_per_printer_per_week": 60,
+        "failure_rate": 0.12,
+        "time_lost_per_failure": 3.0,
+        "hourly_labor_cost": 35,
+        "material_waste_cost": 20,
+        "simulation_effectiveness": 0.6,
+        "simulation_tool_cost": 5000
+    })
+elif preset == "Startup R&D Team (Small-Scale Pilot)":
+    defaults.update({
+        "printer_count": 2,
+        "jobs_per_printer_per_week": 10,
+        "failure_rate": 0.25,
+        "time_lost_per_failure": 1.0,
+        "hourly_labor_cost": 25,
+        "material_waste_cost": 10,
+        "simulation_effectiveness": 0.3,
+        "simulation_tool_cost": 300
+    })
+
+# Sliders
+st.sidebar.header("🎛️ Fine-tune Parameters")
+printer_count = st.sidebar.slider("Number of Printers", 1, 50, defaults["printer_count"])
+jobs_per_printer_per_week = st.sidebar.slider("Jobs per Printer per Week", 1, 100, defaults["jobs_per_printer_per_week"])
+failure_rate = st.sidebar.slider("Failure Rate (%)", 0.0, 1.0, defaults["failure_rate"])
+time_lost_per_failure = st.sidebar.slider("Time Lost per Failure (hrs)", 0.0, 10.0, defaults["time_lost_per_failure"])
+hourly_labor_cost = st.sidebar.slider("Hourly Labor Cost ($)", 10, 200, defaults["hourly_labor_cost"])
+material_waste_cost = st.sidebar.slider("Material Cost per Failure ($)", 1, 100, defaults["material_waste_cost"])
+simulation_effectiveness = st.sidebar.slider("Simulation Effectiveness (%)", 0.0, 1.0, defaults["simulation_effectiveness"])
+simulation_tool_cost = st.sidebar.slider("Monthly Simulation Tool Cost ($)", 0, 10000, defaults["simulation_tool_cost"])
+
+# Run simulation
 results = run_simulation(
     printer_count,
     jobs_per_printer_per_week,
@@ -93,12 +147,12 @@ st.markdown(f"🪙 **Material Cost Lost (After):** `{results['Material Cost Lost
 st.markdown(f"💰 **Total Monthly Cost (Before):** `{results['Total Monthly Cost (Before)']}`")
 st.markdown(f"💵 **Total Monthly Cost (After):** `{results['Total Monthly Cost (After)']}`")
 
-st.markdown("### 📊 ROI & Savings")
-st.markdown(f"🧠 **Simulation Tool Cost:** `{results['Simulation Tool Cost']}`")
-
-# Emphasize Net Savings
+# Emphasize Net Savings and ROI
 savings_numeric = results["Net Savings (numeric)"]
 roi_numeric = results["ROI (numeric)"]
+
+st.markdown("### 📊 ROI & Savings")
+st.markdown(f"🧠 **Simulation Tool Cost:** `{results['Simulation Tool Cost']}`")
 
 if savings_numeric > 100000:
     st.markdown(f"🟢 **Net Savings:** <span style='color:limegreen;font-weight:bold;font-size:20px'>{results['Net Savings']}</span>", unsafe_allow_html=True)
@@ -132,7 +186,7 @@ elif roi_numeric > 0:
 else:
     st.error("This scenario does not show a return. Recheck your inputs or test with different assumptions.")
 
-# Chart
+# Bar Chart
 before_labor = float(results["Labor Hours Lost (Before)"]) * hourly_labor_cost
 after_labor = float(results["Labor Hours Lost (After)"]) * hourly_labor_cost
 before_material = float(results["Material Cost Lost (Before)"].replace('$','').replace(',',''))
