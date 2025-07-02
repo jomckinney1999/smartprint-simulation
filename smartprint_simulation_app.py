@@ -209,3 +209,7 @@ buf2 = BytesIO()
 fig2.savefig(buf2, format="png")
 buf2.seek(0)
 st.image(buf2)
+
+st.markdown("---")
+st.caption("🔎 *Note: All results are based on approximated input values and simulation logic. They are intended for exploratory and illustrative purposes only.*")
+
