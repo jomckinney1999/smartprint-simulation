@@ -68,6 +68,28 @@ results = run_simulation(
     simulation_tool_cost
 )
 
-st.subheader("Simulation Results")
-for k, v in results.items():
-    st.markdown(f"**{k}:** {v}")
+st.markdown("## 📊 Simulation Results Summary")
+st.markdown("---")
+
+# Emphasize key numbers
+st.markdown(f"""
+### 🔧 Operational Metrics
+- 🖨️ **Total Print Jobs/Month:** `{results["Total Print Jobs/Month"]}`
+- ❌ **Failure Rate (Before):** `{results["Failure Rate (Before)"]}`
+- ✅ **Failure Rate (After):** `{results["Failure Rate (After)"]}`
+
+### ⏱️ Time Lost to Failures
+- ⌛ **Labor Hours Lost (Before):** `{results["Labor Hours Lost (Before)"]}`
+- ⏱️ **Labor Hours Lost (After):** `{results["Labor Hours Lost (After)"]}`
+
+### 💵 Material & Cost Impact
+- 🧱 **Material Cost Lost (Before):** `{results["Material Cost Lost (Before)"]}`
+- 🪙 **Material Cost Lost (After):** `{results["Material Cost Lost (After)"]}`
+- 💰 **Total Monthly Cost (Before):** `{results["Total Monthly Cost (Before)"]}`
+- 💸 **Total Monthly Cost (After):** `{results["Total Monthly Cost (After)"]}`
+
+### 📈 ROI Snapshot
+- 🧠 **Simulation Tool Cost:** `{results["Simulation Tool Cost"]}`
+- 🟢 **Net Savings:** `{results["Net Savings"]}`
+- 🚀 **ROI:** `{results["ROI (%)"]}`
+""")
