@@ -193,4 +193,18 @@ x = range(len(labels))
 
 fig, ax = plt.subplots()
 ax.bar(x, before_costs, width=0.4, label='Before', align='center', color='tomato')
-ax.bar([i +]()
+ax.bar([i + 0.4 for i in x], after_costs, width=0.4, label='After', align='center', color='mediumseagreen')
+ax.set_xticks([i + 0.2 for i in x])
+ax.set_xticklabels(labels)
+ax.set_ylabel("Cost ($)")
+ax.set_title("📉 Monthly Cost Comparison: Before vs After Simulation")
+ax.legend()
+st.pyplot(fig)
+
+# --- Extra Visuals ---
+st.markdown("## 📊 Additional Visuals")
+st.markdown("### ROI Growth vs. Simulation Effectiveness")
+st.image("roi_vs_effectiveness.png", use_column_width=True)
+
+st.markdown("### Savings Breakdown (Labor vs Material)")
+st.image("savings_pie_chart.png", use_column_width=True)
