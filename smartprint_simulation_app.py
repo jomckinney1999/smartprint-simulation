@@ -46,12 +46,12 @@ def run_simulation(
         "Net Savings (numeric)": savings
     }
 
-# App layout
+# Streamlit layout
 st.set_page_config(page_title="SmartPrint Simulation Model", layout="centered")
 st.title("📊 3D Printing Simulation Efficiency Model")
 st.caption("Explore how simulation tools can reduce failures, save costs, and improve ROI in real-world 3D printing workflows.")
 
-# Presets
+# --- Preset Use Cases ---
 st.sidebar.markdown("### 🧭 Use Case Presets")
 preset = st.sidebar.selectbox("Choose a realistic use case to explore:", [
     "Customize your own inputs", 
@@ -105,7 +105,7 @@ elif preset == "Startup R&D Team (Small-Scale Pilot)":
         "simulation_tool_cost": 300
     })
 
-# Sliders
+# --- Simulation Sliders ---
 st.sidebar.header("🎛️ Fine-tune Parameters")
 printer_count = st.sidebar.slider("Number of Printers", 1, 50, defaults["printer_count"])
 jobs_per_printer_per_week = st.sidebar.slider("Jobs per Printer per Week", 1, 100, defaults["jobs_per_printer_per_week"])
@@ -116,7 +116,7 @@ material_waste_cost = st.sidebar.slider("Material Cost per Failure ($)", 1, 100,
 simulation_effectiveness = st.sidebar.slider("Simulation Effectiveness (%)", 0.0, 1.0, defaults["simulation_effectiveness"])
 simulation_tool_cost = st.sidebar.slider("Monthly Simulation Tool Cost ($)", 0, 10000, defaults["simulation_tool_cost"])
 
-# Run simulation
+# --- Run Simulation ---
 results = run_simulation(
     printer_count,
     jobs_per_printer_per_week,
@@ -128,7 +128,7 @@ results = run_simulation(
     simulation_tool_cost
 )
 
-# Results Display
+# --- Display Results ---
 st.markdown("## 📈 Simulation Results Summary")
 st.markdown("---")
 
@@ -147,46 +147,40 @@ st.markdown(f"🪙 **Material Cost Lost (After):** `{results['Material Cost Lost
 st.markdown(f"💰 **Total Monthly Cost (Before):** `{results['Total Monthly Cost (Before)']}`")
 st.markdown(f"💵 **Total Monthly Cost (After):** `{results['Total Monthly Cost (After)']}`")
 
-# Emphasize Net Savings and ROI
-savings_numeric = results["Net Savings (numeric)"]
-roi_numeric = results["ROI (numeric)"]
-
 st.markdown("### 📊 ROI & Savings")
 st.markdown(f"🧠 **Simulation Tool Cost:** `{results['Simulation Tool Cost']}`")
 
-if savings_numeric > 100000:
+if results["Net Savings (numeric)"] > 100000:
     st.markdown(f"🟢 **Net Savings:** <span style='color:limegreen;font-weight:bold;font-size:20px'>{results['Net Savings']}</span>", unsafe_allow_html=True)
 else:
     st.markdown(f"**Net Savings:** {results['Net Savings']}")
 
-if roi_numeric > 5:
+if results["ROI (numeric)"] > 5:
     st.markdown(f"🚀 **ROI:** <span style='color:gold;font-weight:bold;font-size:20px'>{results['ROI (%)']}</span>", unsafe_allow_html=True)
 else:
     st.markdown(f"**ROI:** {results['ROI (%)']}")
 
-# Description
+# --- Description ---
 st.markdown("---")
 st.markdown("## 🧠 What This Model Does")
 st.markdown("""
-This tool simulates inefficiencies in 3D printing — including labor and material losses from failed prints — and estimates the improvements from using simulation tools like SmartPrint.
-
-✅ Adjust print volume, failure rates, labor costs, and simulation effectiveness  
-📊 See projected cost reductions and ROI in real time  
-💡 Use insights to support investment or research proposals
+This simulation estimates the time, cost, and resource impact of failed 3D print jobs in real-world workflows.  
+It models how simulation tools like SmartPrint can reduce these inefficiencies — giving you real-time insights on ROI, labor savings, and material waste reduction.
 """)
 
-# Takeaway
+# --- Takeaway ---
 st.markdown("## 🔍 Key Takeaway")
+roi_numeric = results["ROI (numeric)"]
 if roi_numeric > 5:
-    st.success("This model shows exceptionally high ROI. Quantum/AI simulation tools could significantly reduce costs and improve throughput.")
+    st.success("✅ Simulation tools offer massive cost and time savings — a strong business case for adoption.")
 elif roi_numeric > 1:
-    st.info("Strong case for adoption. The numbers show real operational gains with a solid return.")
+    st.info("📈 This shows a promising return on investment. Worth piloting or scaling.")
 elif roi_numeric > 0:
-    st.warning("There's some efficiency gain, but ROI is modest. Consider improving simulation effectiveness or scaling scope.")
+    st.warning("⚠️ Limited efficiency gains. Consider adjusting parameters or simulation scope.")
 else:
-    st.error("This scenario does not show a return. Recheck your inputs or test with different assumptions.")
+    st.error("❌ This configuration doesn’t show value. Try a different scenario or input.")
 
-# Bar Chart
+# --- Bar Chart: Labor & Material Cost Before/After ---
 before_labor = float(results["Labor Hours Lost (Before)"]) * hourly_labor_cost
 after_labor = float(results["Labor Hours Lost (After)"]) * hourly_labor_cost
 before_material = float(results["Material Cost Lost (Before)"].replace('$','').replace(',',''))
@@ -199,11 +193,4 @@ x = range(len(labels))
 
 fig, ax = plt.subplots()
 ax.bar(x, before_costs, width=0.4, label='Before', align='center', color='tomato')
-ax.bar([i + 0.4 for i in x], after_costs, width=0.4, label='After', align='center', color='mediumseagreen')
-ax.set_xticks([i + 0.2 for i in x])
-ax.set_xticklabels(labels)
-ax.set_ylabel("Cost ($)")
-ax.set_title("📉 Monthly Cost Comparison: Before vs After Simulation")
-ax.legend()
-
-st.pyplot(fig)
+ax.bar([i +]()
