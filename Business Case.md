@@ -1,5 +1,3 @@
----
-
 # Business Case  
 ## Simulation Technologies for Addressing Inefficiencies in 3D Printing
 
