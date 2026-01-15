@@ -43,10 +43,7 @@ A web app that lets stakeholders test scenarios (e.g., changing failure rates, c
 
 ### 2) Tableau dashboard (sub-issue analytics)
 An executive-friendly set of visuals to explore the major “sub-issues” behind inefficiency (failure-related time loss, cost drivers, adoption trade-offs, etc.).
-
-> Add screenshots in `/assets/tableau/`:
->
-> ![Tableau Screenshot](assets/tableau/dashboard_overview.png)
+Images have been attached in this repository.
 
 ### 3) Business case + presentation
 A stakeholder narrative connecting the analytics to a recommendation:
