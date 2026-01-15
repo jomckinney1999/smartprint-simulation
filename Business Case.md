@@ -1,13 +1,3 @@
-# MSBA 795-001  
-## Team 3
-
-**Team Members**
-- Jojo McKinney  
-- Bailey Miller  
-- Leslie Rodriguez Sedano  
-- Phuong Phuong Truong  
-- Sandra Flores  
-
 ---
 
 # Business Case  
